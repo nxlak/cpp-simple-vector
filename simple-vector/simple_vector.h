@@ -46,12 +46,8 @@ public:
         std::copy(init.begin(), init.end(), begin());
     }
 
-    SimpleVector(const SimpleVector& other) {
-        SimpleVector temp(other.GetSize());
-        std::copy(other.begin(), other.end(), temp.begin());
-        temp.size_ = other.size_;
-        temp.capacity_ = other.capacity_;
-        swap(temp);
+    SimpleVector(const SimpleVector& other) : items_(other.size_), size_(other.size_), capacity_(other.capacity_) {
+        std::copy(other.begin(), other.end(), begin());
     }
 
     SimpleVector& operator=(const SimpleVector& rhs) {
@@ -194,11 +190,6 @@ public:
         if (new_capacity > capacity_) {
             ArrayPtr<Type> tmp_items(new_capacity);
             std::move(begin(), end(), tmp_items.Get());
-            
-            for (auto it = tmp_items.Get() + size_; it != tmp_items.Get() + new_capacity; ++it) {
-                *it = 0;
-            }
-        
             items_.swap(tmp_items);
             capacity_ = new_capacity;
         }
@@ -239,6 +230,7 @@ public:
     }
 
     Iterator Insert(ConstIterator pos, Type&& value) {
+        assert(pos >= begin() && pos <= end());
         size_t needed_pos = pos - begin();
  
         if (capacity_ >= size_ + 1) {
